@@ -1,15 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from src.stability import advection_stability_check, diffusion_stability_check
 
-def setup(width, height, mean, std):
-    body = np.random.normal(mean, std, (height, width))
-    body[body < 0] = 0
-    return body
-
-
-def pollution(body, mean, std):
-    body[0,:] = body[0,:] + np.random.normal(mean, std, body.shape[1])
-    body[body < 0] = 0
 
 def diffusion(body, dx, dy, dt, D):
     m, n = body.shape
@@ -32,15 +24,9 @@ def decay(body, dt, k):
 def flow(body, dx, dy, dt, D, v, k, mean, std, pollution_stop=False):
     m, n = body.shape
     
-   # stability checks
-    if D > 0:
-        if dt > 1 / (2 * D * (1/dx**2 + 1/dy**2)):
-            raise ValueError("Unstable dt for diffusion")
-    elif D < 0:
-        raise ValueError("D out of the range of values")
-    # if v != 0:
-       #  if dt > dx / abs(v):
-            # raise ValueError("Unstable dt for advection")
+    # stability checks
+    diffusion_stability_check(dx, dy, dt, D)
+    advection_stability_check(dx, dy, dt, v)
    
     dif_body = (body[:-2, 1:-1] - 2 * body[1:-1, 1:-1] + body[2:m, 1:-1])/(dy**2) + (body[1:-1, 0:-2] - 2 * body[1:-1, 1:-1] + body[1:-1, 2:n])/(dx**2)
     if v >= 0:
