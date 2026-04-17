@@ -6,11 +6,6 @@ def setup(width, height, mean, std):
     body[body < 0] = 0
     return body
 
-def visualize(concentration, min, max):
-    plt.figure(1,(10,5))
-    plt.imshow(concentration, origin='upper', cmap = 'plasma', vmin=min, vmax=max)
-    plt.colorbar()
-    plt.show()
 
 def pollution(body, mean, std):
     body[0,:] = body[0,:] + np.random.normal(mean, std, body.shape[1])
@@ -22,6 +17,7 @@ def diffusion(body, dx, dy, dt, D):
     body[1:m-1, 1:n-1] += D * dif_body * dt
 
 def advection(body, dx, dy, dt, v):
+    # upwind scheme 
     m, n = body.shape
     if v >= 0:
         advec_body = (body[1:m-1, 1:n-1] - body[1:m-1, 0:n-2])/dx
@@ -31,9 +27,9 @@ def advection(body, dx, dy, dt, v):
 
 def decay(body, dt, k):
     m, n = body.shape
-    body[1:m-1, 1:n-1] -= k * body[1:m-1, 1:n-1] * dt
+    body[1:m-1, 1:n-1] = np.exp(-k*dt) * body[1:m-1, 1:n-1]
 
-def flow(body, dx, dy, dt, D, v, k, mean, std):
+def flow(body, dx, dy, dt, D, v, k, mean, std, pollution_stop=False):
     m, n = body.shape
     
    # stability checks
@@ -51,14 +47,16 @@ def flow(body, dx, dy, dt, D, v, k, mean, std):
         advec_body = (body[1:m-1, 1:n-1] - body[1:m-1, 0:n-2])/dx
     else:
         advec_body = (body[1:m-1, 2:n] - body[1:m-1, 1:n-1])/dx
-    body[1:m-1, 1:n-1] = body[1:m-1, 1:n-1] + dt * (D * dif_body - v * advec_body - k * body[1:m-1, 1:n-1])
+    body[1:m-1, 1:n-1] = (body[1:m-1, 1:n-1] + dt * (D * dif_body - v * advec_body)) * np.exp(-k*dt)
     body[body < 0] = 0
 
     # borders
-    body[:, 0] = np.random.normal(mean, std, m)
+    if pollution_stop == True:
+         body[0, :] = body[1, :]
+    if v > 0:
+        body[:, 0] = np.random.normal(mean, std, m)
+        body[:, -1] = body[:, -2]
+    else:
+        body[:, 0] = body[:, 1]
+        body[:, -1] = np.random.normal(mean, std, m)
     body[-1, :] = body[-2, :]
-    body[:, -1] = body[:, -2]
-
-def line_plot(x, y):
-    plt.plot(x, y,)
-    plt.show()
