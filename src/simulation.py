@@ -18,45 +18,45 @@ def pipeline(domain_width: int,
              domain_height: int,
              mean_noise: float,
              std_noise: float,
-             mean_pollution: list,
-             std_pollution: list,
-             number_of_cases: int,
+             mean_pollution: list[float],
+             std_pollution: list[float],
              number_of_charts: int,
              duration_sim: int,
              duration_poll: int,
              dx: int,
              dy: int,
              dt: int,
-             D: float,
-             v: float,
-             k:float):
+             D: list[float],
+             v: list[float],
+             k: list[float]):
+    
+    if len(mean_pollution) != len(std_pollution):
+        raise ValueError("mean_pollution and std_pollution must have the same length")
     
     bodies = []
-    averages = []
-    variances = []
+    averages = [[] for _ in range(len(mean_pollution))]
+    variances = [[] for _ in range(len(mean_pollution))]
+    labels = [f"{mean_pollution[i]} mg/L pollution" for i in range(len(mean_pollution))]
     end_of_pollution = False
 
 
-    for i in range(number_of_cases):
+    for i in range(len(mean_pollution)):
         body = setup(domain_width, domain_height, mean_noise, std_noise)
-        bodies.append(body)
         pollution_std_line(body, mean_pollution[i], std_pollution[i])
         bodies.append(body)
 
     for t in range(duration_sim):
-        for  i in range(number_of_cases):
-            flow(bodies[i], dx, dy, dt, D, v, k, mean_noise, std_noise, end_of_pollution)
+        for  i in range(len(mean_pollution)):
+            flow(bodies[i], dx, dy, dt, D[i], v[i], k[i], mean_noise, std_noise, end_of_pollution)
             averages[i].append(average(bodies[i]))
             variances[i].append(variance(bodies[i]))
 
 
             if(t%(duration_sim/number_of_charts) == 0):
-                visualise_concentration(bodies[i], 0, mean_pollution)
+                visualise_concentration(bodies[i], 0, np.max(mean_pollution))
 
         if t == duration_poll:
            end_of_pollution = True
     
-    plot_avg(np.arange(len(averages[0])) / 3600, averages, ["200mg/L pollution", "400mg/L pollution"],
-                  "Avarage concentration of nitrat after pollution", "h")
-    plot_var(np.arange(len(variances[0])) / 3600, variances, ["200mg/L pollution", "400mg/L pollution"],
-                  "Variance of nitrat concentration after pollution", "h")
+    plot_avg(np.arange(len(averages[0])) / 3600, averages, labels, "Average concentration of nitrate after pollution", "h")
+    plot_var(np.arange(len(variances[0])) / 3600, variances, labels, "Variance of nitrat concentration after pollution", "h")

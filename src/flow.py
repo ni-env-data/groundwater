@@ -26,7 +26,7 @@ def flow(body, dx, dy, dt, D, v, k, mean, std, pollution_stop=False):
     
     # stability checks
     diffusion_stability_check(dx, dy, dt, D)
-    advection_stability_check(dx, dy, dt, v)
+    advection_stability_check(dx, dt, v)
    
     dif_body = (body[:-2, 1:-1] - 2 * body[1:-1, 1:-1] + body[2:m, 1:-1])/(dy**2) + (body[1:-1, 0:-2] - 2 * body[1:-1, 1:-1] + body[1:-1, 2:n])/(dx**2)
     if v >= 0:
