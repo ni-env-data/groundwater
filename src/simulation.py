@@ -48,7 +48,7 @@ def pipeline(domain_width: int,
 
     for t in range(duration_sim):
         for  i in range(len(mean_pollution)):
-            flow(bodies[i], dx, dy, dt, D[i], v[i], k[i], mean_noise, std_noise, end_of_pollution, damped[i])
+            flow(bodies[i], dx, dy, dt, float(D[i]), float(v[i]), float(k[i]), mean_noise, std_noise, end_of_pollution, damped[i])
             averages[i].append(average(bodies[i]))
             variances[i].append(variance(bodies[i]))
 

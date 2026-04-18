@@ -1,0 +1,27 @@
+domain:
+  width: 1000
+  height: 200
+
+noise:
+  mean: 17.5
+  std: 2.5
+
+pollution:
+  mean: [200, 300, 400]
+  std: [50, 50, 50]
+  damped: [0.9, 0.9, 0.9]
+  duration_poll: 7200
+
+simulation:
+  duration_sim: 28800
+  number_of_charts: 4
+
+grid:
+  dx: 1
+  dy: 1
+  dt: 1
+
+physical_parameters:
+  D: [0.1, 0.1, 0.1]
+  v: [0.00014, 0.00014, 0.00014]
+  k: [6e-9, 6e-9, 6e-9]

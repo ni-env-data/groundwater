@@ -2,13 +2,13 @@ from src.simulation import pipeline
 import yaml
 
 
-def load_config(path="config.yaml"):
+def load_config(path):
     with open(path, "r") as f:
         config = yaml.safe_load(f)
     return config
 
 if __name__ == '__main__':
-    config = load_config("config.yaml")
+    config = load_config("config/pollution_variation_std.yaml")
 
     pipeline(
         domain_width=config["domain"]["width"],
