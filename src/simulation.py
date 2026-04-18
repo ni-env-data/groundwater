@@ -20,6 +20,7 @@ def pipeline(domain_width: int,
              std_noise: float,
              mean_pollution: list[float],
              std_pollution: list[float],
+             damped: list[float],
              number_of_charts: int,
              duration_sim: int,
              duration_poll: int,
@@ -47,7 +48,7 @@ def pipeline(domain_width: int,
 
     for t in range(duration_sim):
         for  i in range(len(mean_pollution)):
-            flow(bodies[i], dx, dy, dt, D[i], v[i], k[i], mean_noise, std_noise, end_of_pollution)
+            flow(bodies[i], dx, dy, dt, D[i], v[i], k[i], mean_noise, std_noise, end_of_pollution, damped[i])
             averages[i].append(average(bodies[i]))
             variances[i].append(variance(bodies[i]))
 
@@ -59,4 +60,4 @@ def pipeline(domain_width: int,
            end_of_pollution = True
     
     plot_avg(np.arange(len(averages[0])) / 3600, averages, labels, "Average concentration of nitrate after pollution", "h")
-    plot_var(np.arange(len(variances[0])) / 3600, variances, labels, "Variance of nitrat concentration after pollution", "h")
+    plot_var(np.arange(len(variances[0])) / 3600, variances, labels, "Variance of nitrate concentration after pollution", "h")

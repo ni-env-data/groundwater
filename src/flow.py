@@ -1,9 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from src.stability import advection_stability_check, diffusion_stability_check
 
-
 def diffusion(body, dx, dy, dt, D):
+    # central scheme
     m, n = body.shape
     dif_body = (body[:m-2, 1:n-1] - 2 * body[1:m-1, 1:n-1] + body[2:m, 1:n-1])/(dy**2) + (body[1:m-1, 0:n-2] - 2 * body[1:m-1, 1:n-1] + body[1:m-1, 2:n])/(dx**2)
     body[1:m-1, 1:n-1] += D * dif_body * dt
@@ -21,7 +20,8 @@ def decay(body, dt, k):
     m, n = body.shape
     body[1:m-1, 1:n-1] = np.exp(-k*dt) * body[1:m-1, 1:n-1]
 
-def flow(body, dx, dy, dt, D, v, k, mean, std, pollution_stop=False):
+def flow(body, dx, dy, dt, D, v, k, mean, std, pollution_stop=False, damped=0):
+    # combitnation of diffusion, advection and decay
     m, n = body.shape
     
     # stability checks
@@ -37,12 +37,14 @@ def flow(body, dx, dy, dt, D, v, k, mean, std, pollution_stop=False):
     body[body < 0] = 0
 
     # borders
-    if pollution_stop == True:
-         body[0, :] = body[1, :]
+    if pollution_stop == True and damped <= 0:
+        body[0, :] = body[1, :]
+    elif pollution_stop == True and damped > 0:
+        body[0, :] = (1-damped) * body[1, :] + damped * body[0, :]
     if v > 0:
-        body[:, 0] = np.random.normal(mean, std, m)
-        body[:, -1] = body[:, -2]
+        body[1:-1, 0] = np.random.normal(mean, std, m-2)
+        body[1:-1, -1] = body[1:-1, -2]
     else:
-        body[:, 0] = body[:, 1]
-        body[:, -1] = np.random.normal(mean, std, m)
+        body[1:-1, 0] = body[1:-1, 1]
+        body[1:-1, -1] = np.random.normal(mean, std, m-2)
     body[-1, :] = body[-2, :]

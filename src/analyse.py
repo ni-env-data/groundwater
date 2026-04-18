@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def average(body):
     mean = np.mean(body[1:-1, 1:-1])
     return mean
